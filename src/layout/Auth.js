@@ -1,9 +1,9 @@
 const Auth = (props) => {
 	return (
 		<>
-			<header>Auth Header</header>
+			{/* <header>Auth Header</header> */}
 			{props.children}
-			<footer>Auth Footer</footer>
+			{/* <footer>Auth Footer</footer> */}
 		</>
 	);
 };

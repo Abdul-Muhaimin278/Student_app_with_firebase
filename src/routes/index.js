@@ -1,4 +1,4 @@
-import { Todo } from "../components/Todo/todo";
+import Todo from "../components/Todo";
 import AuthView from "../views/auth/AuthView";
 import MainView from "../views/MainView";
 
@@ -11,7 +11,11 @@ let routes = [
 	{
 		path: "/",
 		component: MainView,
-		Element: <Todo />,
+		layout: "main",
+	},
+	{
+		path: "/todo",
+		component: Todo,
 		layout: "main",
 	},
 ];
