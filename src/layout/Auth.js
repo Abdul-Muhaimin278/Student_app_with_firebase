@@ -1,4 +1,4 @@
-const Auth = props => {
+const Auth = (props) => {
 	return (
 		<>
 			<header>Auth Header</header>

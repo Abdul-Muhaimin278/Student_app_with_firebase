@@ -1,17 +1,18 @@
-import AuthView from '../views/auth/AuthView';
-import MainView from '../views/MainView';
-
+import { Todo } from "../components/Todo/todo";
+import AuthView from "../views/auth/AuthView";
+import MainView from "../views/MainView";
 
 let routes = [
 	{
-		path: '/auth',
+		path: "/auth",
 		component: AuthView,
-		layout: 'auth',
+		layout: "auth",
 	},
 	{
-		path: '/',
+		path: "/",
 		component: MainView,
-		layout: 'main',
+		Element: <Todo />,
+		layout: "main",
 	},
 ];
 export default routes;
