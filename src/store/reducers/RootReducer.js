@@ -2,9 +2,11 @@
 
 import { combineReducers } from "redux";
 import authUserReducer from "./authUser";
+import setTodo from "./TodoReducer";
 
-export let rootReducer = combineReducers({
-  authUser: authUserReducer,
+export const rootReducer = combineReducers({
+	authUser: authUserReducer,
+	todo: setTodo,
 });
 
 export default rootReducer;

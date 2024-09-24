@@ -1,0 +1,12 @@
+.card {
+	width: 20rem !important;
+}
+
+.checked {
+	text-decoration: line-through;
+	color: #707070;
+}
+
+.notChecked {
+	text-decoration: none;
+}
