@@ -14,7 +14,7 @@ ReactDOM.render(
 	<React.StrictMode>
 		<Provider store={store}>
 			<App />
-			<ToastContainer />
+			<ToastContainer autoClose={1000} />
 		</Provider>
 	</React.StrictMode>,
 	document.getElementById("root")

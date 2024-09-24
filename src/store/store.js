@@ -9,7 +9,7 @@ const saveToLocalStorage = (state) => {
 		JSON.stringify(state.authUser),
 		"my-secret-key"
 	).toString();
-	console.log(serializedUid);
+	// console.log(serializedUid);
 	localStorage.setItem("auth", serializedUid);
 };
 
