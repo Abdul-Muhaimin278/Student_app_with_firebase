@@ -1,11 +1,18 @@
 import Todo from "../components/Todo";
-import AuthView from "../views/auth/AuthView";
+import Login from "../pages/Login";
+import SignUp from "../pages/Signup";
+// import AuthView from "../views/auth/AuthView";
 import MainView from "../views/MainView";
 
 let routes = [
 	{
-		path: "/auth",
-		component: AuthView,
+		path: "/login",
+		component: Login,
+		layout: "auth",
+	},
+	{
+		path: "/signup",
+		component: SignUp,
 		layout: "auth",
 	},
 	{

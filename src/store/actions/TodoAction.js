@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import firebase from "../../config/firebase";
+import firebase, { db } from "../../config/firebase";
 
 //^ FETCH function
 export const fetchTodos = () => async (dispatch) => {
@@ -8,16 +8,16 @@ export const fetchTodos = () => async (dispatch) => {
 	});
 	try {
 		let todos = [];
-		await firebase
-			.firestore()
+		await db
 			.collection("todos")
-			.orderBy("createdAt", "desc")
+			.orderBy("createBy", "desc")
 			.get()
 			.then((querySnapshot) => {
 				querySnapshot.forEach((doc) => {
 					todos.push(doc.data());
 				});
 			});
+
 		dispatch({
 			type: "FETCH",
 			payload: todos,
@@ -35,9 +35,9 @@ export const addTodo = (uid, item) => async (dispatch) => {
 	dispatch({
 		type: "ADD_TODO_PENDING",
 	});
-
 	try {
-		const addDocRef = firebase.firestore().collection("todos").doc();
+		console.log("id", uid);
+		const addDocRef = db.collection("todos").doc();
 		const payload = {
 			createdAt: firebase.firestore.FieldValue.serverTimestamp(),
 			createdBy: uid,
@@ -66,7 +66,7 @@ export const checkTodo = (id, checked) => async (dispatch) => {
 		type: "CHECK_TODO_PENDING",
 	});
 	try {
-		let taskRef = firebase.firestore().collection("todos").doc(id);
+		let taskRef = db.collection("todos").doc(id);
 		await taskRef.update({
 			checked: !checked,
 		});
@@ -90,7 +90,7 @@ export const delTodo = (id) => async (dispatch) => {
 		type: "DELETE_TODO_PENDING",
 	});
 	try {
-		await firebase.firestore().collection("todos").doc(id).delete();
+		await db.collection("todos").doc(id).delete();
 		toast.success("Todo deleted successfully");
 		dispatch({
 			type: "DELETE_TODO",
@@ -113,7 +113,7 @@ export const editTodo =
 			type: "EDIT_TODO_PENDING",
 		});
 		try {
-			let taskRef = firebase.firestore().collection("todos").doc(id);
+			let taskRef = db.collection("todos").doc(id);
 
 			await taskRef.update({
 				task: value,

@@ -1,11 +1,11 @@
-// Root Reducer
+//^ Root Reducer
 
 import { combineReducers } from "redux";
-import authUserReducer from "./authUser";
 import setTodo from "./TodoReducer";
+import authReducer from "./authReducer";
 
 export const rootReducer = combineReducers({
-	authUser: authUserReducer,
+	auth: authReducer,
 	todo: setTodo,
 });
 

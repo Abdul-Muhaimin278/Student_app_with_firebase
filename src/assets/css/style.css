@@ -9,3 +9,16 @@ footer {
 	background-color: #212121;
 	color: #ffffff;
 }
+
+.signup-form {
+	width: 20rem;
+	box-shadow: 5px 5px 10px #00000042, -5px -5px 10px #00000042;
+}
+.login-form {
+	width: 20rem;
+	box-shadow: 5px 5px 10px #00000042, -5px -5px 10px #00000042;
+}
+
+Form p {
+	font-size: 14px;
+}

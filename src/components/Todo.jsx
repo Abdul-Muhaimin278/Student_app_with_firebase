@@ -25,12 +25,13 @@ const Todo = () => {
 	const toggleBtn = useSelector((state) => state.todo.toggleBtn);
 	const updating = useSelector((state) => state.todo.isUpdating);
 	const deleting = useSelector((state) => state.todo.isDeleting);
+	const { userData } = useSelector((state) => state.auth);
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		let uid = localStorage.getItem("auth");
+		// let uid = localStorage.getItem("auth");
 		const todo = { task, checked: false };
-		dispatch(addTodo(uid, todo)).then(() => {
+		dispatch(addTodo(userData?.uid, todo)).then(() => {
 			setTask("");
 		});
 	};
@@ -80,13 +81,12 @@ const Todo = () => {
 			) : (
 				<>
 					<section className="form-section my-3">
-						<h4 className="text-center">Add Todo</h4>
-
+						<h2 className="text-center">Add Todo</h2>
 						<Form
 							onSubmit={handleSubmit}
-							className="d-flex align-items-center justify-content-center "
+							className="d-flex align-items-center justify-content-center m-auto todo-form"
 						>
-							<FormGroup className="form-input">
+							<FormGroup className=" m-0 d-flex align-items-center">
 								<Input
 									required
 									id="todo"
@@ -98,21 +98,24 @@ const Todo = () => {
 								/>
 							</FormGroup>
 
-							<FormGroup className="form-btn ml-3">
-								<Button color="primary" type="submit" disabled={adding}>
-									{!adding ? (
-										"Add to List"
-									) : (
-										<>
-											<span
-												className="spinner-border spinner-border-sm"
-												aria-hidden="true"
-											></span>
-											<span className="visually-hidden" role="status"></span>
-										</>
-									)}
-								</Button>
-							</FormGroup>
+							<Button
+								color="primary"
+								type="submit"
+								className="ml-3"
+								disabled={adding}
+							>
+								{!adding ? (
+									"Add to List"
+								) : (
+									<>
+										<span
+											className="spinner-border spinner-border-sm"
+											aria-hidden="true"
+										></span>
+										<span className="visually-hidden" role="status"></span>
+									</>
+								)}
+							</Button>
 						</Form>
 					</section>
 					<section className="list-section text-capitalize container">

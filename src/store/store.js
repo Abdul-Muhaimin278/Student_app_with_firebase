@@ -6,7 +6,7 @@ import CryptoJS from "crypto-js";
 const saveToLocalStorage = (state) => {
 	// console.log(state.authUser);
 	const serializedUid = CryptoJS.AES.encrypt(
-		JSON.stringify(state.authUser),
+		JSON.stringify(state.auth),
 		"my-secret-key"
 	).toString();
 	// console.log(serializedUid);
@@ -17,7 +17,7 @@ const checkLocalStorage = () => {
 	const serializedUid = localStorage.getItem("auth");
 	if (serializedUid === null) return undefined;
 	return {
-		authUser: JSON.parse(
+		auth: JSON.parse(
 			CryptoJS.AES.decrypt(serializedUid, "my-secret-key").toString(
 				CryptoJS.enc.Utf8
 			)
