@@ -1,4 +1,4 @@
 # React Boilerplate
 
-All neccessary files setup completed and ready to start.
+This is my practice for todo app with firebase
 **Kindly follow structure**
