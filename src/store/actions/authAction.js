@@ -13,7 +13,6 @@ export const SignUpAction = (item, onSuccess) => async (dispatch) => {
 			password
 		);
 		const uid = userCredentials.user.uid;
-
 		const payload = {
 			createdAt: firebase.firestore.FieldValue.serverTimestamp(),
 			uid: uid,
@@ -27,14 +26,14 @@ export const SignUpAction = (item, onSuccess) => async (dispatch) => {
 		});
 		onSuccess();
 	} catch (error) {
-		toast.error(error.message || "unknown error occurred", { autoClose: 3000 });
+		toast.error(error.message || "unknown error occurred");
 		dispatch({
 			type: "USER_SIGNUP_ERROR",
 		});
 	}
 };
 
-export const login = (item) => async (dispatch) => {
+export const login = (item, onSuccess) => async (dispatch) => {
 	const { email, password } = item;
 
 	dispatch({
@@ -42,21 +41,44 @@ export const login = (item) => async (dispatch) => {
 	});
 
 	try {
-		await auth.signInWithEmailAndPassword(email, password);
+		const userCredentials = await auth.signInWithEmailAndPassword(
+			email,
+			password
+		);
+		const uid = userCredentials.user.uid;
+		const payload = {
+			createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+			uid: uid,
+			...item,
+		};
 		dispatch({
 			type: "USER_LOGIN",
-			payload: item,
+			payload,
 		});
+		onSuccess();
 	} catch (error) {
-		toast.error(error.message || "unknown error occurred", { autoClose: 3000 });
+		toast.error(error.message || "unknown error occurred");
 		dispatch({
 			type: "USER_LOGIN_ERROR",
 		});
 	}
 };
 
-export const logout = () => async (dispatch) => {
+export const logout = (onSuccess) => async (dispatch) => {
 	dispatch({
-		type: "LOGOUT",
+		type: "LOGOUT_PENDING",
 	});
+
+	try {
+		await auth.signOut();
+		dispatch({
+			type: "LOGOUT",
+		});
+		onSuccess();
+	} catch (error) {
+		toast.error(error.message || "unknown error occurred");
+		dispatch({
+			type: "LOGOUT_ERROR",
+		});
+	}
 };

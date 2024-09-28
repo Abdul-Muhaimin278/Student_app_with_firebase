@@ -2,7 +2,7 @@ import Todo from "../components/Todo";
 import Login from "../pages/Login";
 import SignUp from "../pages/Signup";
 // import AuthView from "../views/auth/AuthView";
-import MainView from "../views/MainView";
+// import MainView from "../views/MainView";
 
 let routes = [
 	{
@@ -14,11 +14,6 @@ let routes = [
 		path: "/signup",
 		component: SignUp,
 		layout: "auth",
-	},
-	{
-		path: "/",
-		component: MainView,
-		layout: "main",
 	},
 	{
 		path: "/todo",

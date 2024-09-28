@@ -19,6 +19,7 @@ const App = () => {
 									</Main>
 								</Route>
 							);
+
 						case "auth":
 							return (
 								<Route key={route.path} exact path={route.path}>
@@ -29,7 +30,7 @@ const App = () => {
 							);
 					}
 				})}
-				<Redirect to="/" />
+				<Redirect to="/signup" />
 			</Switch>
 		</BrowserRouter>
 	);

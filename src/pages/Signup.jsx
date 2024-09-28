@@ -17,10 +17,10 @@ const SignUp = () => {
 		e.preventDefault();
 		dispatch(
 			SignUpAction({ email, password, userName }, () => {
-				history.push("/todo");
 				setEmail("");
 				setPassword("");
 				setUserName("");
+				history.push("/todo");
 			})
 		);
 	};

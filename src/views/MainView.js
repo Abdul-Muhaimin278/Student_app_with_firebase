@@ -4,7 +4,7 @@ const AdminView = (props) => {
 	return (
 		<>
 			{/* <h2>Main View</h2> */}
-			<Link to="/auth">Auth View</Link>
+			<Link to="/signup">signup View</Link>
 		</>
 	);
 };

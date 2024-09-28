@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Card, CardBody, Form, FormGroup, Input } from "reactstrap";
+import {
+	Button,
+	Card,
+	CardBody,
+	Form,
+	FormGroup,
+	Input,
+	Spinner,
+} from "reactstrap";
 import {
 	addTodo,
 	checkTodo,
@@ -11,13 +19,12 @@ import {
 } from "../store/actions/TodoAction";
 import { useSelector } from "react-redux";
 import "./Todo.css";
+import { useHistory } from "react-router-dom";
+import { logout } from "../store/actions/authAction";
 
 const Todo = () => {
-	const [task, setTask] = useState("");
-	const [spinner, setSpinner] = useState(null);
-	const [editValue, setEditValue] = useState("");
-
 	const dispatch = useDispatch();
+	const history = useHistory();
 	const loader = useSelector((state) => state.todo.loader);
 	const adding = useSelector((state) => state.todo.isAdding);
 	const checked = useSelector((state) => state.todo.isChecked);
@@ -25,7 +32,11 @@ const Todo = () => {
 	const toggleBtn = useSelector((state) => state.todo.toggleBtn);
 	const updating = useSelector((state) => state.todo.isUpdating);
 	const deleting = useSelector((state) => state.todo.isDeleting);
-	const { userData } = useSelector((state) => state.auth);
+	const { userData, loading } = useSelector((state) => state.auth);
+
+	const [task, setTask] = useState("");
+	const [spinner, setSpinner] = useState(null);
+	const [editValue, setEditValue] = useState("");
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -63,8 +74,16 @@ const Todo = () => {
 		dispatch(toggleEdit(value));
 	};
 
+	const handleLogout = () => {
+		dispatch(
+			logout(() => {
+				history.push("/login");
+			})
+		);
+	};
+
 	useEffect(() => {
-		dispatch(fetchTodos());
+		dispatch(fetchTodos(userData?.uid));
 	}, []);
 
 	return (
@@ -72,6 +91,9 @@ const Todo = () => {
 			<section className="header-section bg-secondary p-3 rounded text-center">
 				<h1>Firebase Todo App</h1>
 			</section>
+			<Button onClick={handleLogout} color="primary">
+				{loading ? <Spinner></Spinner> : <>Log out</>}
+			</Button>
 			{loader ? (
 				<div className="d-flex justify-content-center my-5">
 					<div className="spinner-border" role="status">
@@ -130,8 +152,8 @@ const Todo = () => {
 											{toggleBtn !== todo.id ? (
 												<Input
 													type="checkbox"
-													checked={todo?.checked}
 													disabled={checked && todo.id === spinner}
+													checked={todo?.checked}
 													onChange={() =>
 														handleCheckTodo(todo.id, todo?.checked)
 													}

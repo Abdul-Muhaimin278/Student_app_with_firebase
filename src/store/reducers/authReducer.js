@@ -44,6 +44,24 @@ const authReducer = (state = initialState, action) => {
 				loading: false,
 			};
 
+		case "LOGOUT_PENDING":
+			return {
+				...state,
+				loading: true,
+			};
+		case "LOGOUT":
+			return {
+				...state,
+				userData: null,
+				loading: false,
+			};
+
+		case "LOGOUT_ERROR":
+			return {
+				...state,
+				loading: false,
+			};
+
 		default:
 			return { ...state };
 	}

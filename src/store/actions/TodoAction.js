@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import firebase, { db } from "../../config/firebase";
 
 //^ FETCH function
-export const fetchTodos = () => async (dispatch) => {
+export const fetchTodos = (uid) => async (dispatch) => {
 	dispatch({
 		type: "FETCH_PENDING",
 	});
@@ -10,7 +10,8 @@ export const fetchTodos = () => async (dispatch) => {
 		let todos = [];
 		await db
 			.collection("todos")
-			.orderBy("createBy", "desc")
+			.where("createdBy", "==", uid)
+			.orderBy("createdAt", "desc")
 			.get()
 			.then((querySnapshot) => {
 				querySnapshot.forEach((doc) => {
@@ -23,6 +24,7 @@ export const fetchTodos = () => async (dispatch) => {
 			payload: todos,
 		});
 	} catch (error) {
+		console.error(error.message);
 		toast.error(error.message || "Unknown error occurred", { autoClose: 3000 });
 		dispatch({
 			type: "FETCH_ERROR",
@@ -36,7 +38,6 @@ export const addTodo = (uid, item) => async (dispatch) => {
 		type: "ADD_TODO_PENDING",
 	});
 	try {
-		console.log("id", uid);
 		const addDocRef = db.collection("todos").doc();
 		const payload = {
 			createdAt: firebase.firestore.FieldValue.serverTimestamp(),

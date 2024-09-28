@@ -1,21 +1,26 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { Button, Form, FormGroup, Input, Label, Spinner } from "reactstrap";
 import { login } from "../store/actions/authAction";
 import { useDispatch, useSelector } from "react-redux";
 
 const Login = () => {
+	const dispatch = useDispatch();
+	const { loading } = useSelector((state) => state?.auth);
+	const history = useHistory();
+
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
-	const dispatch = useDispatch();
-	const loading = useSelector((state) => state.auth?.userData);
-
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		dispatch(login({ email, password }));
-		setEmail("");
-		setPassword("");
+		dispatch(
+			login({ email, password }, () => {
+				setEmail("");
+				setPassword("");
+				history.push("/todo");
+			})
+		);
 	};
 
 	return (
