@@ -6,7 +6,7 @@ const Auth = (props) => {
 	const { userData } = useSelector((state) => state?.auth);
 	const history = useHistory();
 	useEffect(() => {
-		userData?.uid && history.push("/todo");
+		userData?.uid && history.push("/students");
 	}, []);
 	return (
 		<>

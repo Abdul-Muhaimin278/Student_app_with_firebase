@@ -22,3 +22,16 @@ footer {
 Form p {
 	font-size: 14px;
 }
+
+.student-form Input {
+	width: 13rem;
+	margin: 0 0.5rem;
+}
+
+.table {
+	width: 40rem !important;
+}
+
+.buttons {
+	width: 10rem;
+}

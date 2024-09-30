@@ -20,7 +20,7 @@ const SignUp = () => {
 				setEmail("");
 				setPassword("");
 				setUserName("");
-				history.push("/todo");
+				history.push("/students");
 			})
 		);
 	};

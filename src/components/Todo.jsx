@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import {
 	Button,
@@ -14,7 +14,7 @@ import {
 	checkTodo,
 	delTodo,
 	editTodo,
-	fetchTodos,
+	// fetchTodos,
 	toggleEdit,
 } from "../store/actions/TodoAction";
 import { useSelector } from "react-redux";
@@ -82,9 +82,9 @@ const Todo = () => {
 		);
 	};
 
-	useEffect(() => {
-		dispatch(fetchTodos(userData?.uid));
-	}, []);
+	// useEffect(() => {
+	// 	dispatch(fetchTodos(userData?.uid));
+	// }, []);
 
 	return (
 		<>

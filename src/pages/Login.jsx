@@ -18,7 +18,7 @@ const Login = () => {
 			login({ email, password }, () => {
 				setEmail("");
 				setPassword("");
-				history.push("/todo");
+				history.push("/students");
 			})
 		);
 	};
