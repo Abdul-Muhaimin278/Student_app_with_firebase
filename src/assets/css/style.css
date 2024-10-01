@@ -27,6 +27,9 @@ Form p {
 	width: 13rem;
 	margin: 0 0.5rem;
 }
+/* .search-input {
+	width: 10rem !important;
+} */
 
 .table {
 	width: 40rem !important;

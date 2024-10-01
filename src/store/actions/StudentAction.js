@@ -2,28 +2,57 @@ import { toast } from "react-toastify";
 import firebase, { db } from "../../config/firebase";
 
 //^ FETCH function
-export const fetchStudents = (uid) => async (dispatch) => {
+export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
 	dispatch({
 		type: "FETCH_PENDING",
 	});
 	try {
+		const { searchName, searchRollNo, order } = filter;
+
 		let students = [];
-		await db
+		let fetchRef = db
 			.collection("students")
 			.where("createdBy", "==", uid)
-			.orderBy("createdAt", "asc")
-			.limit(8)
+			.orderBy("createdAt", order);
+
+		if (searchName) {
+			fetchRef = fetchRef.where("name", "==", searchName);
+		}
+		if (searchRollNo) {
+			fetchRef = fetchRef.where("rollNo", "==", searchRollNo);
+		}
+		// let lastDoc = "";
+		await fetchRef
+			.limit(2)
 			.get()
 			.then((querySnapshot) => {
 				querySnapshot.forEach((doc) => {
 					students.push(doc.data());
 				});
+				// lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
 			});
+		console.log("students", students);
 
-		dispatch({
-			type: "FETCH",
-			payload: students,
-		});
+		if (lastVisible) {
+			await fetchRef.get().then((querySnapshot) => {
+				let lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+				fetchRef.startAfter(lastVisible);
+				querySnapshot.forEach((doc) => {
+					students.push(doc.data());
+				});
+
+				console.log("lastVisible", lastVisible);
+			});
+			dispatch({
+				type: "LOAD_MORE",
+				payload: { students, lastVisible },
+			});
+		} else {
+			dispatch({
+				type: "FETCH",
+				payload: { students, lastVisible },
+			});
+		}
 	} catch (error) {
 		console.error(error.message);
 		toast.error(error.message || "Unknown error occurred", { autoClose: 3000 });
