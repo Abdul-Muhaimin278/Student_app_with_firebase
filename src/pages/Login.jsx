@@ -53,13 +53,9 @@ const Login = () => {
 				<p>
 					Don't have an account yet?<Link to="/signup">Sign up</Link>
 				</p>
-				{loading === true ? (
-					<Spinner color="primary"></Spinner>
-				) : (
-					<Button type="submit" color="primary">
-						Log in
-					</Button>
-				)}
+				<Button type="submit" color="primary" size="sm">
+					{loading === true ? <Spinner color="primary"></Spinner> : <>Log in</>}
+				</Button>
 			</Form>
 		</section>
 	);

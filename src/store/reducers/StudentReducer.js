@@ -1,36 +1,29 @@
 const initialState = {
 	studentsData: [],
 	lastVisible: null,
-	loader: false,
 	isAdding: false,
 	isDeleting: false,
 	isUpdating: false,
-	applyingFilter: false,
 	toggleBtn: null,
 };
 
 const setStudents = (state = initialState, action) => {
 	switch (action.type) {
 		case "FETCH_PENDING":
-			return { ...state, loader: true, applyingFilter: true };
+			return { ...state };
 
 		case "FETCH": {
 			const { students, lastVisible } = action.payload;
-			console.log(lastVisible);
 
 			return {
 				...state,
 				studentsData: students,
 				lastVisible,
-
-				loader: false,
-				applyingFilter: false,
 			};
 		}
 
 		case "LOAD_MORE": {
 			const { students, lastVisible } = action.payload;
-			console.log(lastVisible);
 
 			return {
 				...state,
@@ -40,7 +33,7 @@ const setStudents = (state = initialState, action) => {
 		}
 
 		case "FETCH_ERROR":
-			return { ...state, loader: false, applyingFilter: false };
+			return { ...state };
 
 		case "ADD_STUDENT_PENDING":
 			return {
@@ -51,7 +44,7 @@ const setStudents = (state = initialState, action) => {
 		case "ADD_STUDENT":
 			return {
 				...state,
-				studentsData: [...state.studentsData, action.payload],
+				studentsData: [action.payload, ...state.studentsData],
 				isAdding: false,
 			};
 
@@ -68,8 +61,6 @@ const setStudents = (state = initialState, action) => {
 			};
 
 		case "DELETE_STUDENT": {
-			console.log(state.studentsData);
-
 			const { id } = action.payload;
 			const editStudent = state.studentsData.filter(
 				(student) => student.id !== id
