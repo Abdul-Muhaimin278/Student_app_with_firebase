@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Form, FormGroup, Input, Spinner, Table } from "reactstrap";
 import {
@@ -17,6 +17,7 @@ import { TiDeleteOutline } from "react-icons/ti";
 const StudentRegister = () => {
 	const dispatch = useDispatch();
 	const history = useHistory();
+	const imageRef = useRef(null);
 	const {
 		studentsData,
 		lastVisible,
@@ -29,13 +30,13 @@ const StudentRegister = () => {
 
 	const [studentName, setStudentName] = useState("");
 	const [studentAge, setStudentAge] = useState("");
-	const [image, setImage] = useState("");
 	const [studentRollNo, setStudentRollNo] = useState(1);
 
 	const [fetchLoader, setFetchLoader] = useState(false);
 	const [spinner, setSpinner] = useState(null);
 
 	const [editIndex, setEditIndex] = useState(null);
+
 	const [filter, setFilter] = useState({
 		searchName: "",
 		searchRollNo: "",
@@ -47,15 +48,17 @@ const StudentRegister = () => {
 
 	const [loadMore, setLoadMore] = useState(false);
 
-	const handleImage = (e) => {
-		console.log(URL.createObjectURL(e.target.files[0]));
+	const [image, setImage] = useState(null);
 
-		setImage(URL.createObjectURL(e.target.files[0]));
+	const handleImage = (e) => {
+		setImage(e.target.files[0]);
 	};
 
 	const removeImageButton = () => {
-		console.log("image removed");
-		setImage("");
+		setImage(null);
+		if (imageRef.current) {
+			imageRef.current.value = "";
+		}
 	};
 
 	const handleSubmit = (e) => {
@@ -220,29 +223,34 @@ const StudentRegister = () => {
 									className="mx-1"
 									onChange={(e) => setStudentAge(e.target.value)}
 								/>
+							</FormGroup>
+							<div className="d-flex align-items-center justify-content  image-div mb-0">
 								<Input
-									// placeholder="Student Image"
 									id="student-image"
 									type="file"
-									// accept=".jpg, .jpeg, .png"
+									accept=".jpg, .jpeg, .png"
 									name="student-image"
-									className="mx-1"
+									ref={imageRef}
+									className="mx-1 d-none"
+									value={image ? "" : undefined}
 									onChange={handleImage}
 								/>
-								<div className="d-flex align-items-center justify-content-center image mb-0">
-									<img
-										src={image}
-										alt=""
-										className={`${image ? "d-block" : "d-none"}`}
-									/>
-									<TiDeleteOutline
-										className={`TiDeleteOutline align-self-start ${
-											image ? "d-block" : "d-none"
-										}`}
-										onClick={removeImageButton}
-									/>
-								</div>
-							</FormGroup>
+								<label htmlFor="student-image" className="mb-0 photo-label">
+									Choose Image
+								</label>
+								{image && (
+									<>
+										<TiDeleteOutline
+											className="TiDeleteOutline"
+											onClick={removeImageButton}
+										/>
+										<img
+											src={image ? URL.createObjectURL(image) : null}
+											alt=""
+										/>
+									</>
+								)}
+							</div>
 							<FormGroup className="m-0">
 								{toggleEdit !== null && editIndex ? (
 									<Button
