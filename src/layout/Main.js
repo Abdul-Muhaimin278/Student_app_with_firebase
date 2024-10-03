@@ -5,11 +5,12 @@ import { useHistory } from "react-router-dom";
 const Main = (props) => {
 	const { userData } = useSelector((state) => state?.auth);
 	const history = useHistory();
-	// const location = useLocation();
 
-	useEffect(() => {
-		!userData?.uid && history.push("/signup");
-	}, []);
+	if (!userData?.uid) {
+		history.push("/login");
+		return null;
+	}
+
 	return (
 		<>
 			{/* <header>Main Header</header> */}

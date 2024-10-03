@@ -30,7 +30,9 @@ const StudentRegister = () => {
 
 	const [studentName, setStudentName] = useState("");
 	const [studentAge, setStudentAge] = useState("");
-	const [studentRollNo, setStudentRollNo] = useState(1);
+	const [studentRollNo, setStudentRollNo] = useState(
+		studentsData.map((student) => student.rollNo)
+	);
 
 	const [fetchLoader, setFetchLoader] = useState(false);
 	const [spinner, setSpinner] = useState(null);
@@ -66,14 +68,14 @@ const StudentRegister = () => {
 		const studentData = {
 			name: studentName,
 			age: studentAge,
-			rollNo: studentRollNo,
+			rollNo: studentRollNo + 1,
 		};
 		const student = studentData;
 
 		dispatch(addStudents(userData?.uid, student)).then(() => {
 			setStudentName("");
 			setStudentAge("");
-			setStudentRollNo(studentRollNo + 1);
+			setStudentRollNo(studentData.rollNo);
 		});
 	};
 
@@ -165,10 +167,12 @@ const StudentRegister = () => {
 	};
 
 	useEffect(() => {
-		setFetchLoader(true);
-		dispatch(fetchStudents(userData?.uid, filter)).finally(() =>
-			setFetchLoader(false)
-		);
+		if (userData?.uid) {
+			setFetchLoader(true);
+			dispatch(fetchStudents(userData?.uid, filter)).finally(() =>
+				setFetchLoader(false)
+			);
+		}
 	}, []);
 
 	return (
@@ -336,6 +340,7 @@ const StudentRegister = () => {
 							<thead>
 								<tr>
 									<th>#</th>
+									<th>Image</th>
 									<th>Name</th>
 									<th>Age</th>
 									<th>Roll No</th>
@@ -347,6 +352,12 @@ const StudentRegister = () => {
 									return (
 										<tr key={student?.id}>
 											<th scope="row">{index + 1}</th>
+											<th>
+												<img
+													src={image ? URL.createObjectURL(image) : null}
+													alt="student-image"
+												/>
+											</th>
 											<td>{student?.name}</td>
 											<td>{student?.age}</td>
 											<td>{student?.rollNo}</td>

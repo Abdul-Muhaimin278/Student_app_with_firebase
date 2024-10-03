@@ -1,4 +1,4 @@
-import Todo from "../components/Todo";
+// import Todo from "../components/Todo";
 import Login from "../pages/Login";
 import SignUp from "../pages/Signup";
 import StudentRegister from "../pages/StudentsRegister";

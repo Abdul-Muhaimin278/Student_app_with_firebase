@@ -5,9 +5,11 @@ import { useHistory } from "react-router-dom";
 const Auth = (props) => {
 	const { userData } = useSelector((state) => state?.auth);
 	const history = useHistory();
-	useEffect(() => {
-		userData?.uid && history.push("/students");
-	}, []);
+
+	if (userData?.uid) {
+		history.push("/students");
+	}
+
 	return (
 		<>
 			{/* <header>Auth Header</header> */}

@@ -65,6 +65,7 @@ export const login = (item, onSuccess) => async (dispatch) => {
 };
 
 export const logout = (onSuccess) => async (dispatch) => {
+	localStorage.removeItem("auth");
 	dispatch({
 		type: "LOGOUT_PENDING",
 	});
