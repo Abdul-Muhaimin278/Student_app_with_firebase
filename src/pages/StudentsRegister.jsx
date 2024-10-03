@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import "../assets/css/style.css";
 import { useHistory } from "react-router-dom";
 import { logout } from "../store/actions/authAction";
+import { TiDeleteOutline } from "react-icons/ti";
 
 const StudentRegister = () => {
 	const dispatch = useDispatch();
@@ -50,6 +51,11 @@ const StudentRegister = () => {
 		console.log(URL.createObjectURL(e.target.files[0]));
 
 		setImage(URL.createObjectURL(e.target.files[0]));
+	};
+
+	const removeImageButton = () => {
+		console.log("image removed");
+		setImage("");
 	};
 
 	const handleSubmit = (e) => {
@@ -223,9 +229,19 @@ const StudentRegister = () => {
 									className="mx-1"
 									onChange={handleImage}
 								/>
-								<figure className="d-flex align-items-center justify-content-center image">
-									<img src={image} alt="...image" />
-								</figure>
+								<div className="d-flex align-items-center justify-content-center image mb-0">
+									<img
+										src={image}
+										alt=""
+										className={`${image ? "d-block" : "d-none"}`}
+									/>
+									<TiDeleteOutline
+										className={`TiDeleteOutline align-self-start ${
+											image ? "d-block" : "d-none"
+										}`}
+										onClick={removeImageButton}
+									/>
+								</div>
 							</FormGroup>
 							<FormGroup className="m-0">
 								{toggleEdit !== null && editIndex ? (
@@ -375,13 +391,11 @@ const StudentRegister = () => {
 
 					{/* ============== LOAD MORE BUTTON============== */}
 
-					{
-						<div className="d-flex justify-content-center my-3">
-							<Button color="success" onClick={handleLoadMore}>
-								{loadMore ? <Spinner size="sm"></Spinner> : <>Load More</>}
-							</Button>
-						</div>
-					}
+					<div className="d-flex justify-content-center my-3">
+						<Button color="success" onClick={handleLoadMore}>
+							{loadMore ? <Spinner size="sm"></Spinner> : <>Load More</>}
+						</Button>
+					</div>
 				</>
 			)}
 		</>
