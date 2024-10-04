@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import firebase, { db } from "../../config/firebase";
+import firebase, { db, storageRef } from "../../config/firebase";
 
 //^ FETCH function
 export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
@@ -58,27 +58,63 @@ export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
 };
 
 //^ ADD STUDENT function
-export const addStudents = (uid, item) => async (dispatch) => {
+
+export const addStudents = (uid, image, item) => async (dispatch) => {
 	dispatch({
 		type: "ADD_STUDENT_PENDING",
 	});
+
 	try {
 		const addDocRef = db.collection("students").doc();
+		let imageURL = "";
+
+		if (image) {
+			const fileRef = storageRef.child(`images/${item.name}`);
+			const uploadTask = fileRef.put(image);
+
+			uploadTask.on(
+				"state_changed",
+				(snapshot) => {
+					console.log(
+						`Upload progress: ${Math.round(
+							(snapshot.bytesTransferred / snapshot.totalBytes) * 100
+						)}%`
+					);
+				},
+				(error) => {
+					console.error("Upload error:", error);
+					toast.error("Error uploading image");
+				},
+				async () => {
+					imageURL = await uploadTask.snapshot.ref.getDownloadURL();
+					console.log("URL:", imageURL);
+
+					toast.success("Student registered successfully");
+				}
+			);
+		} else {
+			toast.success("Student registered successfully");
+		}
+
+		console.log("image url", imageURL);
+
 		const payload = {
 			createdAt: firebase.firestore.FieldValue.serverTimestamp(),
 			createdBy: uid,
 			id: addDocRef.id,
+			imageURL,
 			...item,
 		};
+
 		await addDocRef.set(payload);
 
-		toast.success("Student registered successfully");
 		dispatch({
 			type: "ADD_STUDENT",
 			payload,
 		});
 	} catch (error) {
-		toast.error(error.message || "Unknown error occurred", { autoClose: 3000 });
+		console.error(error.message);
+		toast.error(error.message || "Unknown error occurred");
 		dispatch({
 			type: "ADD_STUDENT_ERROR",
 		});

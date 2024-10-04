@@ -30,7 +30,7 @@ const StudentRegister = () => {
 
 	const [studentName, setStudentName] = useState("");
 	const [studentAge, setStudentAge] = useState("");
-	const [studentRollNo, setStudentRollNo] = useState(
+	let [studentRollNo, setStudentRollNo] = useState(
 		studentsData.map((student) => student.rollNo)
 	);
 
@@ -65,17 +65,20 @@ const StudentRegister = () => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		let rollNo = Number(studentRollNo) + 1;
 		const studentData = {
 			name: studentName,
 			age: studentAge,
-			rollNo: studentRollNo + 1,
+			rollNo,
 		};
 		const student = studentData;
 
-		dispatch(addStudents(userData?.uid, student)).then(() => {
+		dispatch(addStudents(userData?.uid, image, student)).then(() => {
 			setStudentName("");
 			setStudentAge("");
 			setStudentRollNo(studentData.rollNo);
+			setImage(null);
+			imageRef.current.value = "";
 		});
 	};
 
@@ -105,6 +108,8 @@ const StudentRegister = () => {
 			setStudentAge("");
 			setStudentRollNo("");
 			setEditIndex(null);
+			setImage(null);
+			imageRef.current.value = "";
 		});
 	};
 
@@ -114,6 +119,8 @@ const StudentRegister = () => {
 		setStudentAge("");
 		setStudentRollNo("");
 		setEditIndex(null);
+		setImage(null);
+		imageRef.current.value = "";
 	};
 
 	const handleLogout = () => {
@@ -232,14 +239,18 @@ const StudentRegister = () => {
 								<Input
 									id="student-image"
 									type="file"
-									accept=".jpg, .jpeg, .png"
+									// accept=".jpg, .jpeg, .png"
 									name="student-image"
 									ref={imageRef}
 									className="mx-1 d-none"
 									value={image ? "" : undefined}
 									onChange={handleImage}
 								/>
-								<label htmlFor="student-image" className="mb-0 photo-label">
+								<label
+									htmlFor="student-image"
+									className="mb-0 photo-label"
+									role="button"
+								>
 									Choose Image
 								</label>
 								{image && (
@@ -259,8 +270,7 @@ const StudentRegister = () => {
 								{toggleEdit !== null && editIndex ? (
 									<Button
 										color="success"
-										size="sm"
-										className="mr-1"
+										className="ml-3"
 										onClick={() => handleSaveStudent()}
 									>
 										{isUpdating ? <Spinner size="sm"></Spinner> : <>Save</>}
@@ -310,16 +320,17 @@ const StudentRegister = () => {
 								onChange={(e) => handleSearchByRollNo(e.target.value)}
 							/>
 
-							<select
+							<Input
 								name="sort"
 								id="sort"
+								type="select"
 								value={filter.dropDown}
-								className="mx-2 rounded "
+								className="mx-2 rounded"
 								onChange={(e) => handleDropDown(e.target.value)}
 							>
 								<option value="desc">Latest</option>
 								<option value="asc">Oldest</option>
-							</select>
+							</Input>
 							<Button
 								color="primary"
 								className="mx-2"
@@ -354,13 +365,13 @@ const StudentRegister = () => {
 											<th scope="row">{index + 1}</th>
 											<th>
 												<img
-													src={image ? URL.createObjectURL(image) : null}
-													alt="student-image"
+													src={student.imageURL ? student.imageURL : null}
+													alt=""
 												/>
 											</th>
-											<td>{student?.name}</td>
-											<td>{student?.age}</td>
-											<td>{student?.rollNo}</td>
+											<td className="">{student?.name}</td>
+											<td className="">{student?.age}</td>
+											<td className="">{student?.rollNo}</td>
 											{toggleBtn !== student.id ? (
 												<td className="d-flex justify-content-between buttons">
 													<Button

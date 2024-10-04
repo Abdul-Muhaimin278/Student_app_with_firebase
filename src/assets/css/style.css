@@ -24,6 +24,10 @@ Form p {
 	font-size: 14px;
 }
 
+.search-section Input {
+	width: 200px;
+}
+
 .buttons {
 	width: 10rem;
 }
