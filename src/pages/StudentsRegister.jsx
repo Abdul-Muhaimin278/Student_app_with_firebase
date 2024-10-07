@@ -25,25 +25,25 @@ const StudentRegister = () => {
 		toggleBtn,
 		isUpdating,
 		isDeleting,
+		hasMore,
 	} = useSelector((state) => state.student);
 	const { userData, loading } = useSelector((state) => state.auth);
 
 	const [studentName, setStudentName] = useState("");
 	const [studentAge, setStudentAge] = useState("");
-	let [studentRollNo, setStudentRollNo] = useState(
-		studentsData.map((student) => student.rollNo)
-	);
 
 	const [fetchLoader, setFetchLoader] = useState(false);
 	const [spinner, setSpinner] = useState(null);
 
 	const [editIndex, setEditIndex] = useState(null);
+	const [editData, setEditData] = useState(null);
 
 	const [filter, setFilter] = useState({
 		searchName: "",
 		searchRollNo: "",
 		order: "desc",
 	});
+	const [filterDone, setFilterDone] = useState(null);
 	const [filterLoader, setFilterLoader] = useState(false);
 	const [filterApplied, setFilterApplied] = useState(false);
 	const [clearedFilter, setClearedFilter] = useState(false);
@@ -65,18 +65,16 @@ const StudentRegister = () => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		let rollNo = Number(studentRollNo) + 1;
+
 		const studentData = {
 			name: studentName,
 			age: studentAge,
-			rollNo,
 		};
 		const student = studentData;
 
 		dispatch(addStudents(userData?.uid, image, student)).then(() => {
 			setStudentName("");
 			setStudentAge("");
-			setStudentRollNo(studentData.rollNo);
 			setImage(null);
 			imageRef.current.value = "";
 		});
@@ -88,11 +86,12 @@ const StudentRegister = () => {
 	};
 
 	const handleEditStudent = (item) => {
-		const { id, name, age, rollNo } = item;
+		const { id, name, age, rollNo, uid } = item;
 		setStudentName(name);
 		setStudentAge(age);
-		setStudentRollNo(rollNo);
 		setEditIndex(id);
+		setEditData({ rollNo, uid });
+
 		dispatch(toggleEdit(id));
 	};
 
@@ -101,13 +100,15 @@ const StudentRegister = () => {
 			id: editIndex,
 			name: studentName,
 			age: studentAge,
-			rollNo: studentRollNo,
+			rollNo: editData?.rollNo,
+			createdBy: editData?.uid,
+			image,
 		};
 		dispatch(editStudent(item)).then(() => {
 			setStudentName("");
 			setStudentAge("");
-			setStudentRollNo("");
 			setEditIndex(null);
+			setEditData(null);
 			setImage(null);
 			imageRef.current.value = "";
 		});
@@ -117,7 +118,6 @@ const StudentRegister = () => {
 		dispatch(toggleEdit(value));
 		setStudentName("");
 		setStudentAge("");
-		setStudentRollNo("");
 		setEditIndex(null);
 		setImage(null);
 		imageRef.current.value = "";
@@ -144,11 +144,17 @@ const StudentRegister = () => {
 	};
 
 	const handleApplyFilter = () => {
+		const filterData = {
+			...filter,
+		};
+		setFilterDone(filterData);
 		setFilterLoader(true);
-		setFilterApplied(true);
-		dispatch(fetchStudents(userData?.uid, filter)).finally(() =>
-			setFilterLoader(false)
-		);
+
+		dispatch(fetchStudents(userData?.uid, filter))
+			.then(() => setFilterApplied(true))
+			.finally(() => {
+				setFilterLoader(false);
+			});
 	};
 
 	const handleClearFilter = () => {
@@ -164,10 +170,17 @@ const StudentRegister = () => {
 
 	const handleLoadMore = () => {
 		setLoadMore(true);
+		console.log("in-load-more =>", filterApplied);
+
 		dispatch(
 			fetchStudents(
 				userData?.uid,
-				filterApplied ? filter : { order: "desc" },
+				filterApplied
+					? filterDone
+					: {
+							order: "desc",
+					  },
+
 				lastVisible
 			)
 		).finally(() => setLoadMore(false));
@@ -220,7 +233,7 @@ const StudentRegister = () => {
 									name="student-name"
 									value={studentName}
 									autoComplete="off"
-									className="mx-1"
+									className="m-1"
 									onChange={(e) => setStudentName(e.target.value)}
 								/>
 								<Input
@@ -231,7 +244,7 @@ const StudentRegister = () => {
 									name="student-age"
 									value={studentAge}
 									autoComplete="off"
-									className="mx-1"
+									className="m-1"
 									onChange={(e) => setStudentAge(e.target.value)}
 								/>
 							</FormGroup>
@@ -242,7 +255,7 @@ const StudentRegister = () => {
 									// accept=".jpg, .jpeg, .png"
 									name="student-image"
 									ref={imageRef}
-									className="mx-1 d-none"
+									className="m-1 d-none"
 									value={image ? "" : undefined}
 									onChange={handleImage}
 								/>
@@ -365,13 +378,13 @@ const StudentRegister = () => {
 											<th scope="row">{index + 1}</th>
 											<th>
 												<img
-													src={student.imageURL ? student.imageURL : null}
+													src={student?.imageURL ? student?.imageURL : null}
 													alt=""
 												/>
 											</th>
-											<td className="">{student?.name}</td>
-											<td className="">{student?.age}</td>
-											<td className="">{student?.rollNo}</td>
+											<td>{student?.name}</td>
+											<td>{student?.age}</td>
+											<td>{student?.rollNo}</td>
 											{toggleBtn !== student.id ? (
 												<td className="d-flex justify-content-between buttons">
 													<Button
@@ -383,6 +396,7 @@ const StudentRegister = () => {
 																name: student?.name,
 																age: student?.age,
 																rollNo: student?.rollNo,
+																uid: student?.createdBy,
 															})
 														}
 													>
@@ -420,12 +434,13 @@ const StudentRegister = () => {
 					</section>
 
 					{/* ============== LOAD MORE BUTTON============== */}
-
-					<div className="d-flex justify-content-center my-3">
-						<Button color="success" onClick={handleLoadMore}>
-							{loadMore ? <Spinner size="sm"></Spinner> : <>Load More</>}
-						</Button>
-					</div>
+					{hasMore !== studentsData.length && (
+						<div className="d-flex justify-content-center my-3">
+							<Button color="success" onClick={handleLoadMore}>
+								{loadMore ? <Spinner size="sm"></Spinner> : <>Load More</>}
+							</Button>
+						</div>
+					)}
 				</>
 			)}
 		</>

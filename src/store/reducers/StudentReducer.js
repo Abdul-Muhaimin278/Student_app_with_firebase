@@ -5,6 +5,7 @@ const initialState = {
 	isDeleting: false,
 	isUpdating: false,
 	toggleBtn: null,
+	hasMore: null,
 };
 
 const setStudents = (state = initialState, action) => {
@@ -23,12 +24,13 @@ const setStudents = (state = initialState, action) => {
 		}
 
 		case "LOAD_MORE": {
-			const { students, lastVisible } = action.payload;
+			const { students, hasMore, lastVisible } = action.payload;
 
 			return {
 				...state,
 				studentsData: [...state.studentsData, ...students],
 				lastVisible,
+				hasMore,
 			};
 		}
 

@@ -8,25 +8,24 @@ export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
 	});
 
 	try {
-		const { searchName, searchRollNo, order } = filter;
-
 		let students = [];
 		let fetchRef = db
 			.collection("students")
 			.where("createdBy", "==", uid)
-			.orderBy("createdAt", order);
+			.orderBy("createdAt", filter?.order);
 
-		if (searchName) {
-			fetchRef = fetchRef.where("name", "==", searchName);
+		if (filter?.searchName) {
+			fetchRef = fetchRef.where("name", "==", filter?.searchName);
 		}
-		if (searchRollNo) {
-			fetchRef = fetchRef.where("rollNo", "==", searchRollNo);
+		if (filter?.searchRollNo) {
+			fetchRef = fetchRef.where("rollNo", "==", Number(filter?.searchRollNo));
 		}
 
 		if (lastVisible) {
 			fetchRef = fetchRef.startAfter(lastVisible);
 		}
 		let lastDoc = null;
+		let hasMore = null;
 		await fetchRef
 			.limit(2)
 			.get()
@@ -35,12 +34,13 @@ export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
 					students.push(doc.data());
 				});
 				lastDoc = snapshot.docs[snapshot.docs.length - 1];
+				hasMore = snapshot.docs.length;
 			});
 
 		if (lastVisible) {
 			dispatch({
 				type: "LOAD_MORE",
-				payload: { students, lastVisible: lastDoc },
+				payload: { students, hasMore, lastVisible: lastDoc },
 			});
 		} else {
 			dispatch({
@@ -66,47 +66,49 @@ export const addStudents = (uid, image, item) => async (dispatch) => {
 
 	try {
 		const addDocRef = db.collection("students").doc();
+		const rollNoRef = db.collection("stats").doc("rollNo");
+		let rollNo = "";
+		await rollNoRef.get().then((doc) => {
+			rollNo = Number(Object.values(doc.data())) + 1;
+		});
+
 		let imageURL = "";
 
 		if (image) {
 			const fileRef = storageRef.child(`images/${item.name}`);
 			const uploadTask = fileRef.put(image);
 
-			uploadTask.on(
-				"state_changed",
-				(snapshot) => {
-					console.log(
-						`Upload progress: ${Math.round(
-							(snapshot.bytesTransferred / snapshot.totalBytes) * 100
-						)}%`
-					);
-				},
-				(error) => {
-					console.error("Upload error:", error);
-					toast.error("Error uploading image");
-				},
-				async () => {
-					imageURL = await uploadTask.snapshot.ref.getDownloadURL();
-					console.log("URL:", imageURL);
-
-					toast.success("Student registered successfully");
-				}
-			);
+			await new Promise((resolve, reject) => {
+				uploadTask.on(
+					"state_changed",
+					(snapshot) => {},
+					(error) => {
+						console.error("Upload error:", error);
+						toast.error("Error uploading image", { autoClose: 3000 });
+						reject(error);
+					},
+					async () => {
+						imageURL = await uploadTask.snapshot.ref.getDownloadURL();
+						toast.success("Student registered successfully");
+						resolve();
+					}
+				);
+			});
 		} else {
 			toast.success("Student registered successfully");
 		}
-
-		console.log("image url", imageURL);
 
 		const payload = {
 			createdAt: firebase.firestore.FieldValue.serverTimestamp(),
 			createdBy: uid,
 			id: addDocRef.id,
 			imageURL,
+			rollNo,
 			...item,
 		};
 
 		await addDocRef.set(payload);
+		await rollNoRef.set({ rollNo });
 
 		dispatch({
 			type: "ADD_STUDENT",
@@ -114,7 +116,7 @@ export const addStudents = (uid, image, item) => async (dispatch) => {
 		});
 	} catch (error) {
 		console.error(error.message);
-		toast.error(error.message || "Unknown error occurred");
+		toast.error(error.message || "Unknown error occurred", { autoClose: 3000 });
 		dispatch({
 			type: "ADD_STUDENT_ERROR",
 		});
@@ -145,23 +147,59 @@ export const delStudent = (id) => async (dispatch) => {
 //^ EDIT STUDENT function
 
 export const editStudent = (item) => async (dispatch) => {
-	const { id, name, age, rollNo } = item;
+	const { id, name, age, rollNo, image } = item;
 	dispatch({
 		type: "EDIT_STUDENT_PENDING",
 	});
+
 	try {
 		let taskRef = db.collection("students").doc(id);
+		let newImageURL = "";
 
-		await taskRef.update({
-			name,
-			age,
-			rollNo,
-		});
+		if (image) {
+			const fileRef = storageRef.child(`images/${item.name}`);
+			const uploadTask = fileRef.put(image);
 
-		toast.success("Todo edited successfully");
+			await new Promise((resolve, reject) => {
+				uploadTask.on(
+					"state_changed",
+					(snapshot) => {},
+					(error) => {
+						console.error("Upload error:", error);
+						toast.error("Error uploading image", { autoClose: 3000 });
+						reject(error);
+					},
+					async () => {
+						newImageURL = await uploadTask.snapshot.ref.getDownloadURL();
+						resolve();
+					}
+				);
+			});
+
+			await taskRef.update({
+				name,
+				age,
+				rollNo,
+				imageURL: newImageURL,
+			});
+		} else {
+			await taskRef.update({
+				name,
+				age,
+				rollNo,
+			});
+		}
+
+		const payload = {
+			editedAt: firebase.firestore.FieldValue.serverTimestamp(),
+			imageURL: newImageURL,
+			...item,
+		};
+
+		toast.success("Student edited successfully");
 		dispatch({
 			type: "EDIT_STUDENT",
-			payload: item,
+			payload: payload,
 		});
 	} catch (error) {
 		toast.error(error.message || "Unknown error occurred", {
