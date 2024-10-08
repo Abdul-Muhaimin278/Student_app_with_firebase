@@ -8,6 +8,7 @@ export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
 	});
 
 	try {
+		const limit = 2;
 		let students = [];
 		let fetchRef = db
 			.collection("students")
@@ -18,23 +19,23 @@ export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
 			fetchRef = fetchRef.where("name", "==", filter?.searchName);
 		}
 		if (filter?.searchRollNo) {
-			fetchRef = fetchRef.where("rollNo", "==", Number(filter?.searchRollNo));
+			fetchRef = fetchRef.where("rollNo", "==", filter?.searchRollNo);
 		}
 
 		if (lastVisible) {
 			fetchRef = fetchRef.startAfter(lastVisible);
 		}
 		let lastDoc = null;
-		let hasMore = null;
+		let hasMore = true;
 		await fetchRef
-			.limit(2)
+			.limit(limit)
 			.get()
 			.then((snapshot) => {
 				snapshot.forEach((doc) => {
 					students.push(doc.data());
 				});
 				lastDoc = snapshot.docs[snapshot.docs.length - 1];
-				hasMore = snapshot.docs.length;
+				hasMore = snapshot.docs.length >= limit;
 			});
 
 		if (lastVisible) {
@@ -45,7 +46,7 @@ export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
 		} else {
 			dispatch({
 				type: "FETCH",
-				payload: { students, lastVisible: lastDoc },
+				payload: { students, hasMore, lastVisible: lastDoc },
 			});
 		}
 	} catch (error) {
@@ -69,9 +70,8 @@ export const addStudents = (uid, image, item) => async (dispatch) => {
 		const rollNoRef = db.collection("stats").doc("rollNo");
 		let rollNo = "";
 		await rollNoRef.get().then((doc) => {
-			rollNo = Number(Object.values(doc.data())) + 1;
+			rollNo = String(Number(Object.values(doc.data())) + 1);
 		});
-
 		let imageURL = "";
 
 		if (image) {
@@ -89,15 +89,11 @@ export const addStudents = (uid, image, item) => async (dispatch) => {
 					},
 					async () => {
 						imageURL = await uploadTask.snapshot.ref.getDownloadURL();
-						toast.success("Student registered successfully");
 						resolve();
 					}
 				);
 			});
-		} else {
-			toast.success("Student registered successfully");
 		}
-
 		const payload = {
 			createdAt: firebase.firestore.FieldValue.serverTimestamp(),
 			createdBy: uid,
@@ -109,6 +105,7 @@ export const addStudents = (uid, image, item) => async (dispatch) => {
 
 		await addDocRef.set(payload);
 		await rollNoRef.set({ rollNo });
+		toast.success("Student registered successfully");
 
 		dispatch({
 			type: "ADD_STUDENT",
@@ -147,7 +144,7 @@ export const delStudent = (id) => async (dispatch) => {
 //^ EDIT STUDENT function
 
 export const editStudent = (item) => async (dispatch) => {
-	const { id, name, age, rollNo, image } = item;
+	const { id, image } = item;
 	dispatch({
 		type: "EDIT_STUDENT_PENDING",
 	});
@@ -175,26 +172,13 @@ export const editStudent = (item) => async (dispatch) => {
 					}
 				);
 			});
-
-			await taskRef.update({
-				name,
-				age,
-				rollNo,
-				imageURL: newImageURL,
-			});
-		} else {
-			await taskRef.update({
-				name,
-				age,
-				rollNo,
-			});
 		}
 
 		const payload = {
-			editedAt: firebase.firestore.FieldValue.serverTimestamp(),
-			imageURL: newImageURL,
 			...item,
+			...(image && { imageURL: newImageURL }),
 		};
+		await taskRef.update(payload);
 
 		toast.success("Student edited successfully");
 		dispatch({

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 
@@ -10,13 +9,7 @@ const Auth = (props) => {
 		history.push("/students");
 	}
 
-	return (
-		<>
-			{/* <header>Auth Header</header> */}
-			{props.children}
-			{/* <footer>Auth Footer</footer> */}
-		</>
-	);
+	return <>{props.children}</>;
 };
 
 export default Auth;

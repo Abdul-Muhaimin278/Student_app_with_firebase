@@ -17,9 +17,9 @@ const SignUp = () => {
 		e.preventDefault();
 		dispatch(
 			SignUpAction({ email, password, userName }, () => {
-				setEmail("");
-				setPassword("");
-				setUserName("");
+				// setEmail("");
+				// setPassword("");
+				// setUserName("");
 				history.push("/students");
 			})
 		);
@@ -36,6 +36,7 @@ const SignUp = () => {
 						type="Username"
 						id="Username"
 						placeholder="Enter Username"
+						autoComplete="off"
 						value={userName}
 						onChange={(e) => setUserName(e.target.value)}
 					/>
@@ -47,6 +48,7 @@ const SignUp = () => {
 						type="email"
 						id="email"
 						placeholder="Enter Email"
+						autoComplete="on"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 					/>
@@ -64,9 +66,9 @@ const SignUp = () => {
 				</FormGroup>
 
 				<p>
-					Already have an account.<Link to="/login">Login</Link>
+					Already have an account. <Link to="/login">Login</Link>
 				</p>
-				<Button type="submit" color="primary">
+				<Button type="submit" color="primary" disabled={loading}>
 					{loading ? <Spinner size="sm"></Spinner> : <>Sign up</>}
 				</Button>
 			</Form>

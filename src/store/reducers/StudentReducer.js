@@ -5,21 +5,22 @@ const initialState = {
 	isDeleting: false,
 	isUpdating: false,
 	toggleBtn: null,
-	hasMore: null,
+	hasMore: true,
 };
 
 const setStudents = (state = initialState, action) => {
 	switch (action.type) {
-		case "FETCH_PENDING":
-			return { ...state };
+		// case "FETCH_PENDING":
+		// 	return { ...state };
 
 		case "FETCH": {
-			const { students, lastVisible } = action.payload;
+			const { students, hasMore, lastVisible } = action.payload;
 
 			return {
 				...state,
 				studentsData: students,
 				lastVisible,
+				hasMore,
 			};
 		}
 
@@ -34,8 +35,8 @@ const setStudents = (state = initialState, action) => {
 			};
 		}
 
-		case "FETCH_ERROR":
-			return { ...state };
+		// case "FETCH_ERROR":
+		// 	return { ...state };
 
 		case "ADD_STUDENT_PENDING":
 			return {
@@ -90,7 +91,7 @@ const setStudents = (state = initialState, action) => {
 			const { id } = action.payload;
 
 			const updatedTask = state.studentsData.map((todo) =>
-				todo.id === id ? { ...action.payload } : todo
+				todo.id === id ? { ...todo, ...action.payload } : todo
 			);
 			return {
 				...state,

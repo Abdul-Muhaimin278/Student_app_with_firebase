@@ -1,3 +1,4 @@
+import "../assets/css/style.css";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Form, FormGroup, Input, Spinner, Table } from "reactstrap";
@@ -9,10 +10,10 @@ import {
 	editStudent,
 } from "../store/actions/StudentAction";
 import { useSelector } from "react-redux";
-import "../assets/css/style.css";
 import { useHistory } from "react-router-dom";
 import { logout } from "../store/actions/authAction";
 import { TiDeleteOutline } from "react-icons/ti";
+import { toast } from "react-toastify";
 
 const StudentRegister = () => {
 	const dispatch = useDispatch();
@@ -46,14 +47,18 @@ const StudentRegister = () => {
 	const [filterDone, setFilterDone] = useState(null);
 	const [filterLoader, setFilterLoader] = useState(false);
 	const [filterApplied, setFilterApplied] = useState(false);
-	const [clearedFilter, setClearedFilter] = useState(false);
+	const [clearFilterLoader, setClearFilterLoader] = useState(false);
 
-	const [loadMore, setLoadMore] = useState(false);
+	const [loadMoreLoader, setLoadMoreLoader] = useState(false);
 
 	const [image, setImage] = useState(null);
 
 	const handleImage = (e) => {
-		setImage(e.target.files[0]);
+		if (e.target.files[0].type.startsWith("image/")) {
+			setImage(e.target.files[0]);
+		} else {
+			toast.info("Please upload an image file.", { autoClose: 3000 });
+		}
 	};
 
 	const removeImageButton = () => {
@@ -86,11 +91,11 @@ const StudentRegister = () => {
 	};
 
 	const handleEditStudent = (item) => {
-		const { id, name, age, rollNo, uid } = item;
+		const { id, name, age, rollNo } = item;
 		setStudentName(name);
 		setStudentAge(age);
 		setEditIndex(id);
-		setEditData({ rollNo, uid });
+		setEditData({ rollNo });
 
 		dispatch(toggleEdit(id));
 	};
@@ -101,7 +106,6 @@ const StudentRegister = () => {
 			name: studentName,
 			age: studentAge,
 			rollNo: editData?.rollNo,
-			createdBy: editData?.uid,
 			image,
 		};
 		dispatch(editStudent(item)).then(() => {
@@ -131,16 +135,12 @@ const StudentRegister = () => {
 		);
 	};
 
-	const handleSearchByName = (value) => {
-		setFilter((prev) => ({ ...prev, searchName: value }));
-	};
-
-	const handleSearchByRollNo = (value) => {
-		setFilter((prev) => ({ ...prev, searchRollNo: value }));
-	};
-
-	const handleDropDown = (value) => {
-		setFilter((prev) => ({ ...prev, order: value }));
+	const handleSearch = (e) => {
+		const { value, name } = e.target;
+		setFilter((prev) => ({
+			...prev,
+			[name]: value,
+		}));
 	};
 
 	const handleApplyFilter = () => {
@@ -149,12 +149,12 @@ const StudentRegister = () => {
 		};
 		setFilterDone(filterData);
 		setFilterLoader(true);
-
-		dispatch(fetchStudents(userData?.uid, filter))
-			.then(() => setFilterApplied(true))
-			.finally(() => {
-				setFilterLoader(false);
-			});
+		if (filter.searchName || filter.searchRollNo || filter.order)
+			dispatch(fetchStudents(userData?.uid, filter))
+				.then(() => setFilterApplied(true))
+				.finally(() => {
+					setFilterLoader(false);
+				});
 	};
 
 	const handleClearFilter = () => {
@@ -162,28 +162,22 @@ const StudentRegister = () => {
 		setFilterApplied(false);
 
 		setFilter(filter);
-		setClearedFilter(true);
+		setClearFilterLoader(true);
 		dispatch(fetchStudents(userData?.uid, filter)).finally(() =>
-			setClearedFilter(false)
+			setClearFilterLoader(false)
 		);
 	};
 
 	const handleLoadMore = () => {
-		setLoadMore(true);
-		console.log("in-load-more =>", filterApplied);
+		setLoadMoreLoader(true);
 
 		dispatch(
 			fetchStudents(
 				userData?.uid,
-				filterApplied
-					? filterDone
-					: {
-							order: "desc",
-					  },
-
+				filterApplied ? filterDone : { order: "desc" },
 				lastVisible
 			)
-		).finally(() => setLoadMore(false));
+		).finally(() => setLoadMoreLoader(false));
 	};
 
 	useEffect(() => {
@@ -199,12 +193,13 @@ const StudentRegister = () => {
 		<>
 			{/*//^============== HEADER SECTION============== */}
 
-			<section className="header-section bg-secondary p-3 rounded text-center">
+			<section className="header-section bg-secondary d-flex p-3 rounded text-center container-fluid">
 				<h1>Firebase Students App</h1>
 				<Button
 					onClick={handleLogout}
 					color="primary"
 					className="d-flex align-self-center ml-auto"
+					disabled={loading}
 				>
 					{loading ? <Spinner size="sm"></Spinner> : <>Log out</>}
 				</Button>
@@ -213,11 +208,10 @@ const StudentRegister = () => {
 				<Spinner
 					className="d-flex justify-content-center mx-auto mt-5"
 					size="lg"
-				></Spinner>
+				/>
 			) : (
 				<>
 					{/*//^============== FORM SECTION============== */}
-
 					<section className="form-section my-3 container ">
 						<h2 className="text-center">Add Student</h2>
 						<Form
@@ -252,7 +246,6 @@ const StudentRegister = () => {
 								<Input
 									id="student-image"
 									type="file"
-									// accept=".jpg, .jpeg, .png"
 									name="student-image"
 									ref={imageRef}
 									className="m-1 d-none"
@@ -285,6 +278,7 @@ const StudentRegister = () => {
 										color="success"
 										className="ml-3"
 										onClick={() => handleSaveStudent()}
+										disabled={isUpdating}
 									>
 										{isUpdating ? <Spinner size="sm"></Spinner> : <>Save</>}
 									</Button>
@@ -305,9 +299,7 @@ const StudentRegister = () => {
 							</FormGroup>
 						</Form>
 					</section>
-
 					{/*//^============== FILTER & SEARCH SECTION============== */}
-
 					<section className="d-flex align-items-center justify-content-center">
 						<div className="d-flex align-items-center search-section">
 							<Input
@@ -315,31 +307,31 @@ const StudentRegister = () => {
 								placeholder="Search student name"
 								id="search-name"
 								type="text"
-								name="search-name"
+								name="searchName"
 								className="mx-2 search-input"
 								value={filter.searchName}
 								autoComplete="off"
-								onChange={(e) => handleSearchByName(e.target.value)}
+								onChange={(e) => handleSearch(e)}
 							/>
 							<Input
 								required
 								placeholder="Search student rollNo"
 								id="search-rollNo"
 								type="number"
-								name="search-rollNo"
+								name="searchRollNo"
 								className="mx-2 search-input"
 								value={filter.searchRollNo}
 								autoComplete="off"
-								onChange={(e) => handleSearchByRollNo(e.target.value)}
+								onChange={(e) => handleSearch(e)}
 							/>
 
 							<Input
-								name="sort"
+								name="Order"
 								id="sort"
 								type="select"
 								value={filter.dropDown}
 								className="mx-2 rounded"
-								onChange={(e) => handleDropDown(e.target.value)}
+								onChange={(e) => handleSearch(e)}
 							>
 								<option value="desc">Latest</option>
 								<option value="asc">Oldest</option>
@@ -348,17 +340,20 @@ const StudentRegister = () => {
 								color="primary"
 								className="mx-2"
 								onClick={handleApplyFilter}
+								disabled={filterLoader}
 							>
 								{filterLoader ? <Spinner size="sm"></Spinner> : <>Apply</>}
 							</Button>
-							<Button color="danger" onClick={handleClearFilter}>
-								{clearedFilter ? <Spinner size="sm"></Spinner> : <>Clear</>}
+							<Button
+								color="danger"
+								onClick={handleClearFilter}
+								disabled={clearFilterLoader}
+							>
+								{clearFilterLoader ? <Spinner size="sm"></Spinner> : <>Clear</>}
 							</Button>
 						</div>
 					</section>
-
 					{/*//^============== TABLE  SECTION============== */}
-
 					<section className="list-section text-capitalize container d-flex justify-content-center ">
 						<Table borderless className="text-center table">
 							<thead>
@@ -396,7 +391,6 @@ const StudentRegister = () => {
 																name: student?.name,
 																age: student?.age,
 																rollNo: student?.rollNo,
-																uid: student?.createdBy,
 															})
 														}
 													>
@@ -432,12 +426,19 @@ const StudentRegister = () => {
 							</tbody>
 						</Table>
 					</section>
-
 					{/* ============== LOAD MORE BUTTON============== */}
-					{hasMore !== studentsData.length && (
+					{hasMore && (
 						<div className="d-flex justify-content-center my-3">
-							<Button color="success" onClick={handleLoadMore}>
-								{loadMore ? <Spinner size="sm"></Spinner> : <>Load More</>}
+							<Button
+								color="success"
+								onClick={handleLoadMore}
+								disabled={loadMoreLoader}
+							>
+								{loadMoreLoader ? (
+									<Spinner size="sm"></Spinner>
+								) : (
+									<>Load More</>
+								)}
 							</Button>
 						</div>
 					)}

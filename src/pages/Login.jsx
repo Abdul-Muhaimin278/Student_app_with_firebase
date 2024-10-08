@@ -16,8 +16,8 @@ const Login = () => {
 		e.preventDefault();
 		dispatch(
 			login({ email, password }, () => {
-				setEmail("");
-				setPassword("");
+				// setEmail("");
+				// setPassword("");
 				history.push("/students");
 			})
 		);
@@ -51,9 +51,9 @@ const Login = () => {
 				</FormGroup>
 
 				<p>
-					Don't have an account yet?<Link to="/signup">Sign up</Link>
+					Don't have an account yet? <Link to="/signup">Sign up</Link>
 				</p>
-				<Button type="submit" color="primary">
+				<Button type="submit" color="primary" disabled={loading}>
 					{loading === true ? <Spinner size="sm"></Spinner> : <>Log in</>}
 				</Button>
 			</Form>

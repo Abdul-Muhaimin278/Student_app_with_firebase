@@ -10,6 +10,14 @@ footer {
 	color: #ffffff;
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	margin: 0;
+}
+
 .signup-form {
 	width: 20rem;
 	box-shadow: 5px 5px 10px #00000042, -5px -5px 10px #00000042;
