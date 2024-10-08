@@ -14,6 +14,7 @@ import { useHistory } from "react-router-dom";
 import { logout } from "../store/actions/authAction";
 import { TiDeleteOutline } from "react-icons/ti";
 import { toast } from "react-toastify";
+import UserSvg from "../assets/user-svg";
 
 const StudentRegister = () => {
 	const dispatch = useDispatch();
@@ -106,9 +107,8 @@ const StudentRegister = () => {
 			name: studentName,
 			age: studentAge,
 			rollNo: editData?.rollNo,
-			image,
 		};
-		dispatch(editStudent(item)).then(() => {
+		dispatch(editStudent(item, image)).then(() => {
 			setStudentName("");
 			setStudentAge("");
 			setEditIndex(null);
@@ -326,7 +326,7 @@ const StudentRegister = () => {
 							/>
 
 							<Input
-								name="Order"
+								name="order"
 								id="sort"
 								type="select"
 								value={filter.dropDown}
@@ -372,10 +372,15 @@ const StudentRegister = () => {
 										<tr key={student?.id}>
 											<th scope="row">{index + 1}</th>
 											<th>
-												<img
-													src={student?.imageURL ? student?.imageURL : null}
-													alt=""
-												/>
+												{student?.imageURL ? (
+													<img
+														className="rounded img-fluid"
+														src={student?.imageURL ? student?.imageURL : null}
+														alt=""
+													/>
+												) : (
+													<UserSvg />
+												)}
 											</th>
 											<td>{student?.name}</td>
 											<td>{student?.age}</td>

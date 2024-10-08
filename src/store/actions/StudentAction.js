@@ -3,10 +3,6 @@ import firebase, { db, storageRef } from "../../config/firebase";
 
 //^ FETCH function
 export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
-	dispatch({
-		type: "FETCH_PENDING",
-	});
-
 	try {
 		const limit = 2;
 		let students = [];
@@ -52,9 +48,6 @@ export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
 	} catch (error) {
 		console.error(error.message);
 		toast.error(error.message || "Unknown error occurred", { autoClose: 3000 });
-		dispatch({
-			type: "FETCH_ERROR",
-		});
 	}
 };
 
@@ -143,8 +136,8 @@ export const delStudent = (id) => async (dispatch) => {
 
 //^ EDIT STUDENT function
 
-export const editStudent = (item) => async (dispatch) => {
-	const { id, image } = item;
+export const editStudent = (item, image) => async (dispatch) => {
+	const { id } = item;
 	dispatch({
 		type: "EDIT_STUDENT_PENDING",
 	});
@@ -162,7 +155,6 @@ export const editStudent = (item) => async (dispatch) => {
 					"state_changed",
 					(snapshot) => {},
 					(error) => {
-						console.error("Upload error:", error);
 						toast.error("Error uploading image", { autoClose: 3000 });
 						reject(error);
 					},
@@ -176,14 +168,15 @@ export const editStudent = (item) => async (dispatch) => {
 
 		const payload = {
 			...item,
-			...(image && { imageURL: newImageURL }),
+			...(newImageURL && { imageURL: newImageURL }),
 		};
+
 		await taskRef.update(payload);
 
 		toast.success("Student edited successfully");
 		dispatch({
 			type: "EDIT_STUDENT",
-			payload: payload,
+			payload,
 		});
 	} catch (error) {
 		toast.error(error.message || "Unknown error occurred", {
