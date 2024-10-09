@@ -2,8 +2,6 @@
 import Login from "../pages/Login";
 import SignUp from "../pages/Signup";
 import StudentRegister from "../pages/StudentsRegister";
-// import AuthView from "../views/auth/AuthView";
-// import MainView from "../views/MainView";
 
 let routes = [
 	{

@@ -4,7 +4,7 @@ import firebase, { db, storageRef } from "../../config/firebase";
 //^ FETCH function
 export const fetchStudents = (uid, filter, lastVisible) => async (dispatch) => {
 	try {
-		const limit = 2;
+		const limit = 10;
 		let students = [];
 		let fetchRef = db
 			.collection("students")

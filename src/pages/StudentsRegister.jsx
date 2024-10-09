@@ -45,7 +45,7 @@ const StudentRegister = () => {
 		searchRollNo: "",
 		order: "desc",
 	});
-	const [filterDone, setFilterDone] = useState(null);
+	const [filterLoadMore, setFilterLoadMore] = useState(null);
 	const [filterLoader, setFilterLoader] = useState(false);
 	const [filterApplied, setFilterApplied] = useState(false);
 	const [clearFilterLoader, setClearFilterLoader] = useState(false);
@@ -147,7 +147,7 @@ const StudentRegister = () => {
 		const filterData = {
 			...filter,
 		};
-		setFilterDone(filterData);
+		setFilterLoadMore(filterData);
 		setFilterLoader(true);
 		if (filter.searchName || filter.searchRollNo || filter.order)
 			dispatch(fetchStudents(userData?.uid, filter))
@@ -174,7 +174,7 @@ const StudentRegister = () => {
 		dispatch(
 			fetchStudents(
 				userData?.uid,
-				filterApplied ? filterDone : { order: "desc" },
+				filterApplied ? filterLoadMore : { order: "desc" },
 				lastVisible
 			)
 		).finally(() => setLoadMoreLoader(false));

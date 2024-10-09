@@ -17,9 +17,6 @@ const SignUp = () => {
 		e.preventDefault();
 		dispatch(
 			SignUpAction({ email, password, userName }, () => {
-				// setEmail("");
-				// setPassword("");
-				// setUserName("");
 				history.push("/students");
 			})
 		);
